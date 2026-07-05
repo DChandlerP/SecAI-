@@ -49,55 +49,60 @@ Welcome to the **SecAI** resource guide. This comprehensive document is designed
 - [13. 1. The Operational Reality of AI-Driven Defense](#1-the-operational-reality-of-ai-driven-defense)
 - [14. 2. The Architecture of Model Validation](#2-the-architecture-of-model-validation)
   - [Mitigating Variance with k-Fold Cross-Validation](#mitigating-variance-with-k-fold-cross-validation)
-- [15. 3. Threat Modeling the ML Pipeline](#3-threat-modeling-the-ml-pipeline)
-- [16. 4. Controlled Adversarial Simulations (Red Teaming)](#4-controlled-adversarial-simulations-red-teaming)
-- [17. Supervised Learning in Security Analytics](#supervised-learning-in-security-analytics)
+- [15. Prerequisites for Performing AI Threat Modeling](#prerequisites-for-performing-ai-threat-modeling)
+  - [1. Required Foundational Knowledge](#1-required-foundational-knowledge)
+  - [2. Cross-Functional Team Coordination](#2-cross-functional-team-coordination)
+  - [3. Threat Modeling Business Scenario (Automotive Retail Bot)](#3-threat-modeling-business-scenario-automotive-retail-bot)
+  - [4. Layering Security Controls](#4-layering-security-controls)
+- [16. 3. Threat Modeling the ML Pipeline](#3-threat-modeling-the-ml-pipeline)
+- [17. 4. Controlled Adversarial Simulations (Red Teaming)](#4-controlled-adversarial-simulations-red-teaming)
+- [18. Supervised Learning in Security Analytics](#supervised-learning-in-security-analytics)
   - [Data Labeling & Weak Supervision](#data-labeling-weak-supervision)
   - [Mitigating Model Errors](#mitigating-model-errors)
   - [Intrusion Detection Walkthrough](#intrusion-detection-walkthrough)
-- [18. Reinforcement Learning (RL) Fundamentals](#reinforcement-learning-rl-fundamentals)
+- [19. Reinforcement Learning (RL) Fundamentals](#reinforcement-learning-rl-fundamentals)
   - [Cybersecurity Use Cases for RL](#cybersecurity-use-cases-for-rl)
   - [Training RL Security Agents](#training-rl-security-agents)
-- [19. Knowledge Retrieval: Pre-training vs. RAG](#knowledge-retrieval-pre-training-vs-rag)
-- [20. Model Optimization Techniques](#model-optimization-techniques)
+- [20. Knowledge Retrieval: Pre-training vs. RAG](#knowledge-retrieval-pre-training-vs-rag)
+- [21. Model Optimization Techniques](#model-optimization-techniques)
   - [Creating Embeddings](#creating-embeddings)
   - [Plotting the Data](#plotting-the-data)
   - [The Similarity Search](#the-similarity-search)
   - [The Role in RAG](#the-role-in-rag)
-- [21. The Core Concept of Federated Learning](#the-core-concept-of-federated-learning)
+- [22. The Core Concept of Federated Learning](#the-core-concept-of-federated-learning)
   - [The Federated Learning Process](#the-federated-learning-process)
   - [Challenges and Risks](#challenges-and-risks)
   - [Mitigation Strategies](#mitigation-strategies)
-- [22. Deep Dive: Calculating Noise in Differential Privacy](#deep-dive-calculating-noise-in-differential-privacy)
+- [23. Deep Dive: Calculating Noise in Differential Privacy](#deep-dive-calculating-noise-in-differential-privacy)
   - [Defining the Privacy Budget (Epsilon)](#defining-the-privacy-budget-epsilon)
   - [Determining the Sensitivity](#determining-the-sensitivity)
   - [The Laplace Mechanism](#the-laplace-mechanism)
-- [23. The Role of Prompt Engineering: The Dual Edge](#the-role-of-prompt-engineering-the-dual-edge)
+- [24. The Role of Prompt Engineering: The Dual Edge](#the-role-of-prompt-engineering-the-dual-edge)
   - [System Roles and Prompts: Calibrating the Analyst](#system-roles-and-prompts-calibrating-the-analyst)
   - [Structured Output & SIEM Integration: Breaking the Text Barrier](#structured-output-siem-integration-breaking-the-text-barrier)
   - [Data Validation: Trust, but Verify](#data-validation-trust-but-verify)
   - [Automated Triage and SOAR: From Analysis to Action](#automated-triage-and-soar-from-analysis-to-action)
   - [Tagging Conventions: Mapping the Chaos](#tagging-conventions-mapping-the-chaos)
-- [24. The Triad of Effective Prompt Design](#the-triad-of-effective-prompt-design)
+- [25. The Triad of Effective Prompt Design](#the-triad-of-effective-prompt-design)
   - [The Synthesis in Action](#the-synthesis-in-action)
-- [25. Advanced Defense-in-Depth for LLM Applications](#advanced-defense-in-depth-for-llm-applications)
+- [26. Advanced Defense-in-Depth for LLM Applications](#advanced-defense-in-depth-for-llm-applications)
   - [Policy Filters: Embedding System-Level Restrictions](#policy-filters-embedding-system-level-restrictions)
   - [Guardrail Frameworks: Deterministic and Semantic Inspection](#guardrail-frameworks-deterministic-and-semantic-inspection)
   - [Cryptographic Watermarking: Ensuring Provenance and Integrity](#cryptographic-watermarking-ensuring-provenance-and-integrity)
   - [Rate-Limiting & Audit Logging: Throttling and Forensics](#rate-limiting-audit-logging-throttling-and-forensics)
-- [26. Secure Prompt Engineering: DevSecOps for LLMs](#secure-prompt-engineering-devsecops-for-llms)
-- [27. The OpenAI Guardrails Architectural Framework](#the-openai-guardrails-architectural-framework)
-- [28. Hardening the Data Ingestion Pipeline](#hardening-the-data-ingestion-pipeline)
-- [29. Securing Structured, Semi-Structured, and Unstructured Inputs](#securing-structured-semi-structured-and-unstructured-inputs)
-- [30. Watermarking Paradigms for Datasets and Neural Networks](#watermarking-paradigms-for-datasets-and-neural-networks)
-- [31. Securing Retrieval-Augmented Generation Architectures](#securing-retrieval-augmented-generation-architectures)
-- [32. Data Processing and Cleansing](#data-processing-and-cleansing)
-- [33. Data Verification](#data-verification)
-- [34. Data Lineage and Provenance](#data-lineage-and-provenance)
-- [35. Data Integrity](#data-integrity)
-- [36. Data Augmentation](#data-augmentation)
-- [37. Data Balancing](#data-balancing)
-- [38. Continuous Monitoring](#continuous-monitoring)
+- [27. Secure Prompt Engineering: DevSecOps for LLMs](#secure-prompt-engineering-devsecops-for-llms)
+- [28. The OpenAI Guardrails Architectural Framework](#the-openai-guardrails-architectural-framework)
+- [29. Hardening the Data Ingestion Pipeline](#hardening-the-data-ingestion-pipeline)
+- [30. Securing Structured, Semi-Structured, and Unstructured Inputs](#securing-structured-semi-structured-and-unstructured-inputs)
+- [31. Watermarking Paradigms for Datasets and Neural Networks](#watermarking-paradigms-for-datasets-and-neural-networks)
+- [32. Securing Retrieval-Augmented Generation Architectures](#securing-retrieval-augmented-generation-architectures)
+- [33. Data Processing and Cleansing](#data-processing-and-cleansing)
+- [34. Data Verification](#data-verification)
+- [35. Data Lineage and Provenance](#data-lineage-and-provenance)
+- [36. Data Integrity](#data-integrity)
+- [37. Data Augmentation](#data-augmentation)
+- [38. Data Balancing](#data-balancing)
+- [39. Continuous Monitoring](#continuous-monitoring)
 
 </details>
 
@@ -397,6 +402,51 @@ A machine learning model that excels when evaluated against historical traffic l
 To ensure that evaluation metrics are not skewed by a single "lucky" or "unlucky" data split, architectures should implement k-fold cross-validation.
 In this paradigm, the complete dataset is divided into k equal, distinct segments called folds. The model is iteratively trained and evaluated k times. In each iteration, a different single fold is held out for testing, while the remaining folds are used for training. After all k iterations, the final evaluation score is calculated by averaging the scores from each individual run.
 Once all k iterations are complete, the performance metrics are averaged. This rolling evaluation ensures that every data point is used for both training and validation, maximizing data utility and delivering a statistically robust assessment of how the model will perform in the wild.
+
+## Prerequisites for Performing AI Threat Modeling
+
+Based on the provided CompTIA SecAI+ CertMaster course material, this section outlines the foundational knowledge, team alignment, and baseline contextual data required before a security team can effectively model threats for an AI system.
+
+Here is a breakdown of the specific topics covered:
+
+### 1. Required Foundational Knowledge
+
+Before an organization can begin the threat modeling process, security and development teams must possess a solid understanding of:
+
+* **AI Architecture & Data Flows:** Knowing how data moves into, through, and out of the system.
+* **AI-Specific Threats:** Understanding unique vulnerabilities and attack vectors inherent to machine learning.
+* **Organizational Factors:** Aligning the threat model with existing corporate security policies and regional compliance standards (such as GDPR for systems operating in Europe).
+* **Threat Modeling Frameworks:** Familiarity with the specific methodology being applied to evaluate the system.
+
+### 2. Cross-Functional Team Coordination
+
+The text emphasizes that threat modeling cannot be done in a vacuum; it requires active collaboration across several organizational roles:
+
+* Security and Infrastructure teams
+* Application Architecture and Development teams
+* Legal and Compliance teams
+* The **AI Architect**
+
+---
+
+### 3. Threat Modeling Business Scenario (Automotive Retail Bot)
+
+To demonstrate how to transition from a traditional application security mindset to an AI-driven one, the material uses a case study of an automated automotive bot designed to assist users in buying, selling, and estimating vehicle resale value (including analyzing uploaded photos of cars and engines).
+
+It breaks down the evaluation into five critical pillars:
+
+* **Original Process vs. AI Transition:** Analyzing how risks shift when minimizing or removing human representatives (e.g., a customer service desk) and replacing them with autonomous bots.
+* **Data Collection:** Identifying what types of data are collected and stored. In this scenario, it highlights handling highly sensitive inputs like car photos, vehicle registration numbers, driving licenses, and lease agreements.
+* **Data Processing:** Evaluating how the bot references its training data, predefined instructions, and internal logic to calculate and generate responses.
+* **End Users:** Identifying the target audience (online buyers and sellers) to understand the user interaction surface.
+* **AI-Generated Content & Compliance:** Reviewing the output generated by the bot (such as suggested resale prices) against regional privacy laws and AI-specific regulations.
+
+### 4. Layering Security Controls
+
+Finally, the section discusses how defense-in-depth must be structured for AI solutions:
+
+* **Foundational AppSec Controls:** Baseline security measures must still be reviewed and validated. These include rate limiting, traffic control via load balancers, Web Application Firewalls (WAF), and standard network firewall rules.
+* **AI-Specific Measures:** These traditional controls must run in tandem with specialized AI guardrails (such as data transmission encryption and strict input validation) to protect system integrity and privacy.
 
 ## 3. Threat Modeling the ML Pipeline
 
