@@ -7,57 +7,97 @@ Welcome to the **SecAI** resource guide. This comprehensive document is designed
 <details>
 <summary>📖 <strong>Table of Contents (Click to expand)</strong></summary>
 
-- [1. Understanding Artificial Intelligence (AI)](#1-understanding-artificial-intelligence-ai)
+- [1. Understanding Artificial Intelligence (AI)](#understanding-artificial-intelligence-ai)
   - [The Broader Context](#the-broader-context)
-- [2. What is Machine Learning (ML)?](#2-what-is-machine-learning-ml)
+- [2. What is Machine Learning (ML)?](#what-is-machine-learning-ml)
   - [How it Works](#how-it-works)
   - [A Practical Example](#a-practical-example)
   - [Machine Learning vs. Statistical Learning](#machine-learning-vs-statistical-learning)
   - [1. Statistical Learning](#1-statistical-learning)
-  - [2. Deep Learning & Artificial Neural Networks (ANNs)](#2-deep-learning--artificial-neural-networks-anns)
+  - [2. Deep Learning & Artificial Neural Networks (ANNs)](#2-deep-learning-artificial-neural-networks-anns)
+    - [Artificial Neural Networks (ANNs)](#artificial-neural-networks-anns)
   - [3. Natural Language Processing (NLP)](#3-natural-language-processing-nlp)
   - [4. Transformers: Revolutionizing AI](#4-transformers-revolutionizing-ai)
-  - [5. Generative AI & Language Models](#5-generative-ai--language-models)
-- [3. Local vs. Cloud-Based Models: Architecture and Privacy](#3-local-vs-cloud-based-models-architecture-and-privacy)
-- [4. Prompt Engineering: Context and Secure Coding](#4-prompt-engineering-context-and-secure-coding)
+    - [Applications in Advanced Fields](#applications-in-advanced-fields)
+  - [5. Generative AI & Language Models](#5-generative-ai-language-models)
+    - [Language Models (and LLMs)](#language-models-and-llms)
+- [3. AI Security Frameworks, Vulnerability Databases, and Standards](#ai-security-frameworks-vulnerability-databases-and-standards)
+  - [1. MIT AI Risk Repository](#1-mit-ai-risk-repository)
+  - [2. CVE AI Workgroup](#2-cve-ai-workgroup)
+  - [3. AI Vulnerability Database (AVID)](#3-ai-vulnerability-database-avid)
+  - [4. AI Incident Database (AIID)](#4-ai-incident-database-aiid)
+  - [5. arXiv](#5-arxiv)
+  - [6. Common Weakness Enumeration (CWE)](#6-common-weakness-enumeration-cwe)
+- [4. Local vs. Cloud-Based Models: Architecture and Privacy](#local-vs-cloud-based-models-architecture-and-privacy)
+- [5. Prompt Engineering: Context and Secure Coding](#prompt-engineering-context-and-secure-coding)
   - [The Danger of the Vague Prompt](#the-danger-of-the-vague-prompt)
   - [The High-Value, Secure Prompt](#the-high-value-secure-prompt)
-- [5. Validating Outputs: Hallucinations and Software Assurance](#5-validating-outputs-hallucinations-and-software-assurance)
-- [6. Supervised Learning: The Guided Approach](#6-supervised-learning-the-guided-approach)
-- [7. Unsupervised Learning: The Pattern Seeker](#7-unsupervised-learning-the-pattern-seeker)
+- [6. Validating Outputs: Hallucinations and Software Assurance](#validating-outputs-hallucinations-and-software-assurance)
+- [7. Supervised Learning: The Guided Approach](#supervised-learning-the-guided-approach)
+- [8. Unsupervised Learning: The Pattern Seeker](#unsupervised-learning-the-pattern-seeker)
   - [Summary Comparison](#summary-comparison)
-- [8. The Next Evolution of Anomaly Detection: Transformers in UEBA](#8-the-next-evolution-of-anomaly-detection-transformers-in-ueba)
+- [9. The Next Evolution of Anomaly Detection: Transformers in UEBA](#the-next-evolution-of-anomaly-detection-transformers-in-ueba)
   - [How Transformers Change the Equation](#how-transformers-change-the-equation)
   - [Practical Applications in Identity and Application Security](#practical-applications-in-identity-and-application-security)
-- [9. Applying NLP Within Security Operations Centers](#9-applying-nlp-within-security-operations-centers)
-- [10. Evaluating Architectural Options: LLMs Versus SLMs](#10-evaluating-architectural-options-llms-versus-slms)
-- [11. Simulating Adversarial Attacks Utilizing GANs](#11-simulating-adversarial-attacks-utilizing-gans)
-- [12. 1. The Operational Reality of AI-Driven Defense](#12-1-the-operational-reality-of-ai-driven-defense)
-- [13. 2. The Architecture of Model Validation](#13-2-the-architecture-of-model-validation)
-- [14. 3. Threat Modeling the ML Pipeline](#14-3-threat-modeling-the-ml-pipeline)
-- [15. 4. Controlled Adversarial Simulations (Red Teaming)](#15-4-controlled-adversarial-simulations-red-teaming)
-- [16. Supervised Learning in Security Analytics](#16-supervised-learning-in-security-analytics)
-- [17. Reinforcement Learning (RL) Fundamentals](#17-reinforcement-learning-rl-fundamentals)
-- [18. Knowledge Retrieval: Pre-training vs. RAG](#18-knowledge-retrieval-pre-training-vs-rag)
-- [19. Model Optimization Techniques](#19-model-optimization-techniques)
-- [20. The Core Concept of Federated Learning](#20-the-core-concept-of-federated-learning)
-- [21. Deep Dive: Calculating Noise in Differential Privacy](#21-deep-dive-calculating-noise-in-differential-privacy)
-- [22. The Role of Prompt Engineering: The Dual Edge](#22-the-role-of-prompt-engineering-the-dual-edge)
-- [23. The Triad of Effective Prompt Design](#23-the-triad-of-effective-prompt-design)
-- [24. Advanced Defense-in-Depth for LLM Applications](#24-advanced-defense-in-depth-for-llm-applications)
-- [25. Secure Prompt Engineering: DevSecOps for LLMs](#25-secure-prompt-engineering-dev-sec-ops-for-llms)
-- [26. The OpenAI Guardrails Architectural Framework](#26-the-openai-guardrails-architectural-framework)
-- [27. Hardening the Data Ingestion Pipeline](#27-hardening-the-data-ingestion-pipeline)
-- [28. Securing Structured, Semi-Structured, and Unstructured Inputs](#28-securing-structured-semi-structured-and-unstructured-inputs)
-- [29. Watermarking Paradigms for Datasets and Neural Networks](#29-watermarking-paradigms-for-datasets-and-neural-networks)
-- [30. Securing Retrieval-Augmented Generation Architectures](#30-securing-retrieval-augmented-generation-architectures)
-- [31. Data Processing and Cleansing](#31-data-processing-and-cleansing)
-- [32. Data Verification](#32-data-verification)
-- [33. Data Lineage and Provenance](#33-data-lineage-and-provenance)
-- [34. Data Integrity](#34-data-integrity)
-- [35. Data Augmentation](#35-data-augmentation)
-- [36. Data Balancing](#35-data-balancing)
-- [37. Continuous Monitoring](#36-continuous-monitoring)
+- [10. Applying NLP Within Security Operations Centers](#applying-nlp-within-security-operations-centers)
+- [11. Evaluating Architectural Options: LLMs Versus SLMs](#evaluating-architectural-options-llms-versus-slms)
+  - [Characteristics of Large Language Models (LLMs)](#characteristics-of-large-language-models-llms)
+  - [Capabilities of Small Language Models (SLMs)](#capabilities-of-small-language-models-slms)
+- [12. Simulating Adversarial Attacks Utilizing GANs](#simulating-adversarial-attacks-utilizing-gans)
+  - [The Structural Dynamics of GANs](#the-structural-dynamics-of-gans)
+  - [Real-World Security Deployments](#real-world-security-deployments)
+- [13. 1. The Operational Reality of AI-Driven Defense](#1-the-operational-reality-of-ai-driven-defense)
+- [14. 2. The Architecture of Model Validation](#2-the-architecture-of-model-validation)
+  - [Mitigating Variance with k-Fold Cross-Validation](#mitigating-variance-with-k-fold-cross-validation)
+- [15. 3. Threat Modeling the ML Pipeline](#3-threat-modeling-the-ml-pipeline)
+- [16. 4. Controlled Adversarial Simulations (Red Teaming)](#4-controlled-adversarial-simulations-red-teaming)
+- [17. Supervised Learning in Security Analytics](#supervised-learning-in-security-analytics)
+  - [Data Labeling & Weak Supervision](#data-labeling-weak-supervision)
+  - [Mitigating Model Errors](#mitigating-model-errors)
+  - [Intrusion Detection Walkthrough](#intrusion-detection-walkthrough)
+- [18. Reinforcement Learning (RL) Fundamentals](#reinforcement-learning-rl-fundamentals)
+  - [Cybersecurity Use Cases for RL](#cybersecurity-use-cases-for-rl)
+  - [Training RL Security Agents](#training-rl-security-agents)
+- [19. Knowledge Retrieval: Pre-training vs. RAG](#knowledge-retrieval-pre-training-vs-rag)
+- [20. Model Optimization Techniques](#model-optimization-techniques)
+  - [Creating Embeddings](#creating-embeddings)
+  - [Plotting the Data](#plotting-the-data)
+  - [The Similarity Search](#the-similarity-search)
+  - [The Role in RAG](#the-role-in-rag)
+- [21. The Core Concept of Federated Learning](#the-core-concept-of-federated-learning)
+  - [The Federated Learning Process](#the-federated-learning-process)
+  - [Challenges and Risks](#challenges-and-risks)
+  - [Mitigation Strategies](#mitigation-strategies)
+- [22. Deep Dive: Calculating Noise in Differential Privacy](#deep-dive-calculating-noise-in-differential-privacy)
+  - [Defining the Privacy Budget (Epsilon)](#defining-the-privacy-budget-epsilon)
+  - [Determining the Sensitivity](#determining-the-sensitivity)
+  - [The Laplace Mechanism](#the-laplace-mechanism)
+- [23. The Role of Prompt Engineering: The Dual Edge](#the-role-of-prompt-engineering-the-dual-edge)
+  - [System Roles and Prompts: Calibrating the Analyst](#system-roles-and-prompts-calibrating-the-analyst)
+  - [Structured Output & SIEM Integration: Breaking the Text Barrier](#structured-output-siem-integration-breaking-the-text-barrier)
+  - [Data Validation: Trust, but Verify](#data-validation-trust-but-verify)
+  - [Automated Triage and SOAR: From Analysis to Action](#automated-triage-and-soar-from-analysis-to-action)
+  - [Tagging Conventions: Mapping the Chaos](#tagging-conventions-mapping-the-chaos)
+- [24. The Triad of Effective Prompt Design](#the-triad-of-effective-prompt-design)
+  - [The Synthesis in Action](#the-synthesis-in-action)
+- [25. Advanced Defense-in-Depth for LLM Applications](#advanced-defense-in-depth-for-llm-applications)
+  - [Policy Filters: Embedding System-Level Restrictions](#policy-filters-embedding-system-level-restrictions)
+  - [Guardrail Frameworks: Deterministic and Semantic Inspection](#guardrail-frameworks-deterministic-and-semantic-inspection)
+  - [Cryptographic Watermarking: Ensuring Provenance and Integrity](#cryptographic-watermarking-ensuring-provenance-and-integrity)
+  - [Rate-Limiting & Audit Logging: Throttling and Forensics](#rate-limiting-audit-logging-throttling-and-forensics)
+- [26. Secure Prompt Engineering: DevSecOps for LLMs](#secure-prompt-engineering-devsecops-for-llms)
+- [27. The OpenAI Guardrails Architectural Framework](#the-openai-guardrails-architectural-framework)
+- [28. Hardening the Data Ingestion Pipeline](#hardening-the-data-ingestion-pipeline)
+- [29. Securing Structured, Semi-Structured, and Unstructured Inputs](#securing-structured-semi-structured-and-unstructured-inputs)
+- [30. Watermarking Paradigms for Datasets and Neural Networks](#watermarking-paradigms-for-datasets-and-neural-networks)
+- [31. Securing Retrieval-Augmented Generation Architectures](#securing-retrieval-augmented-generation-architectures)
+- [32. Data Processing and Cleansing](#data-processing-and-cleansing)
+- [33. Data Verification](#data-verification)
+- [34. Data Lineage and Provenance](#data-lineage-and-provenance)
+- [35. Data Integrity](#data-integrity)
+- [36. Data Augmentation](#data-augmentation)
+- [37. Data Balancing](#data-balancing)
+- [38. Continuous Monitoring](#continuous-monitoring)
 
 </details>
 
@@ -153,6 +193,55 @@ Generative AI, powered largely by Transformer architectures, goes a step further
 A Language Model is a specific type of AI trained to understand and generate human language. Large Language Models (`LLMs`) are massive versions of these, built on Transformer architectures and trained on vast portions of the internet.
 * **How they work:** Fundamentally, they are highly advanced prediction engines. Based on the context of the prompt you give them, they predict the most statistically probable next word, over and over again, until a coherent thought is formed. This allows them to write essays, translate languages, and converse naturally.
 Here is a standalone learning unit designed for software engineers and product teams, focusing on the secure and effective integration of Large Language Models (`LLMs`) into the development lifecycle.
+
+## AI Security Frameworks, Vulnerability Databases, and Standards
+
+To systematically address the unique threat landscape of artificial intelligence, security teams rely on several key databases, standards, and research repositories:
+
+### 1. MIT AI Risk Repository
+The `MIT AI Risk Repository` is a comprehensive, continuously updated live database containing over 1,600 AI risks compiled from 65 existing frameworks. It helps security teams analyze risks across specific taxonomies based on how, when, why, and where they occur.
+
+It is divided into three primary components:
+* **AI Risk Database:** A centralized collection of over 2,244 records. Each record details an individual AI risk, compiles supporting evidence from research papers, provides quick-reference keywords, and maps the threat to specific taxonomies.
+* **Causal Taxonomy of AI Risks:** Categorizes threats by their origin and intent. It determines if a risk stems from an AI decision, human developer/user action, or external factors. It also assesses whether the risk was intentional (e.g., expected outcomes of a malicious goal) or unintentional, and tracks when it occurred in the development lifecycle (pre-deployment vs. post-deployment).
+* **Domain Taxonomy of AI Risks:** Organizes risks into 7 distinct domains and 23 subdomains to help security professionals execute targeted keyword searches:
+  * *Discrimination & Toxicity* (e.g., unfair discrimination, exposure to toxic content, unequal group performance)
+  * *Privacy & Security*
+  * *Misinformation*
+  * *Malicious Actors & Misuse*
+  * *Human-Computer Interaction*
+  * *Socioeconomic & Environmental*
+  * *AI System Safety, Failures, & Limitations*
+
+### 2. CVE AI Workgroup
+The `CVE AI Workgroup` is a specialized committee within the broader Common Vulnerabilities and Exposures (`CVE`) program. It includes board members, vulnerability management corporate entities, and AI community associations.
+* **Purpose:** Establishes standardized policies, guidelines, and best practices for identifying, reporting, and documenting AI-specific vulnerabilities.
+* **Function:** Analyzes unique AI threats and assigns formal `CVE` IDs to them, fully integrating AI vulnerabilities into the global `CVE` database.
+* **Classification:** Focuses on categorizing vulnerabilities by causes (e.g., data poisoning, algorithmic errors) and domains (e.g., natural language processing, computer vision).
+
+### 3. AI Vulnerability Database (AVID)
+The AI Vulnerability Database (`AVID`) operates as an open-source, structured knowledge base focusing heavily on the technical components of AI applications.
+* **Core Focus:** Collects data regarding distinct failure modes across AI models, datasets, and APIs.
+* **Enterprise Utility:** Security and development teams utilize `AVID` as a pre-deployment screening tool to check for known vulnerabilities within the specific models or datasets they plan to integrate.
+
+### 4. AI Incident Database (AIID)
+While databases like `AVID` and `CVE` focus on structural vulnerabilities, the AI Incident Database (`AIID`) documents real-world operational history.
+* **Core Focus:** A repository of real-time, real-world AI incidents reported across the internet, capturing live threats such as deepfakes, algorithmic biases, and systemic misuse.
+* **Enterprise Utility:** Threat hunters use these real-world events to study attacker patterns, perform gap analyses, and discover where their own deployed models might be weak against active in-the-wild exploitation.
+
+### 5. arXiv
+`arXiv` is a highly utilized open-access repository for scholarly electronic prints and scientific papers.
+* **Role in AI Security:** It serves as an early-warning research platform where global security researchers upload cutting-edge findings, novel attack vectors (like new prompt injection techniques), and defensive mitigation strategies before they undergo formal peer review.
+
+### 6. Common Weakness Enumeration (CWE)
+The Common Weakness Enumeration (`CWE`) is a foundational framework for classifying software flaws, which security teams map to AI architectures to standardize how vulnerabilities are logged and mitigated.
+
+The table below highlights two prominent examples of how standard `CWE`s apply directly to AI security:
+
+| CWE ID | Weakness Name | Direct AI Application / Threat Scenario |
+| --- | --- | --- |
+| **CWE-77** | Command Injection | **Prompt Injection Attacks:** User-supplied malicious text manipulates the underlying `LLM` system instructions to bypass safety guardrails or execute unauthorized actions. |
+| **CWE-200** | Exposure of Sensitive Information | **Data Leakage / Membership Inference:** Model output or API query responses expose private training data, system prompts, or proprietary intellectual property. |
 
 ## Local vs. Cloud-Based Models: Architecture and Privacy
 
