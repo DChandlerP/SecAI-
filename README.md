@@ -1364,25 +1364,18 @@ The foundation of AI security begins with infrastructure custody and weight prov
 
 **Production Code / Policy Snippet** To mitigate this, enterprises must enforce the use of **Safetensors**---a zero-copy, secure format that only stores tensor math arrays, structurally preventing code execution.
 
-YAML
-
-\# CI/CD Pipeline Policy (e.g., OPA Gatekeeper) enforcing Safetensors
-
+```rego
+# CI/CD Pipeline Policy (e.g., OPA Gatekeeper) enforcing Safetensors
 package ai_supply_chain.safetensors_only
 
-deny\[msg\] {
-
-input.kind == \"ModelDeployment\"
-
-some i
-
-artifact := input.spec.artifacts\[i\]
-
-endswith(artifact.filename, \".bin\")
-
-msg := sprintf(\"CRITICAL: Artifact %v uses insecure pickle serialization. Use .safetensors\", \[artifact.filename\])
-
+deny[msg] {
+  input.kind == "ModelDeployment"
+  some i
+  artifact := input.spec.artifacts[i]
+  endswith(artifact.filename, ".bin")
+  msg := sprintf("CRITICAL: Artifact %v uses insecure pickle serialization. Use .safetensors", [artifact.filename])
 }
+```
 
 **Industry Standard Reference**
 
@@ -1404,31 +1397,20 @@ Directly calling LLM APIs from application logic decentralizes security controls
 
 **Production Code / Policy Snippet** Below is a LiteLLM proxy configuration enforcing strict Token Per Minute (TPM) rate limits using a token-bucket algorithm, ensuring a compromised internal service cannot bankrupt the project.
 
-YAML
-
+```yaml
 model_list:
-
-\- model_name: enterprise-gpt4
-
-model: azure/gpt-4o
-
-api_key: os.environ/AZURE_API_KEY
-
-api_base: https://internal-ai.openai.azure.com/
-
-\# Strict rate limits mitigating DoW
-
-rpm: 600 \# Max Requests Per Minute
-
-tpm: 100000 \# Max Tokens Per Minute
-
+  - model_name: enterprise-gpt4
+    model: azure/gpt-4o
+    api_key: os.environ/AZURE_API_KEY
+    api_base: https://internal-ai.openai.azure.com/
+    # Strict rate limits mitigating DoW
+    rpm: 600 # Max Requests Per Minute
+    tpm: 100000 # Max Tokens Per Minute
 router_settings:
-
-routing_strategy: usage-based-routing
-
-default_max_parallel_requests: 10
-
-redis_host: \"internal-redis.svc.cluster.local\" \# Centralized token tracking
+  routing_strategy: usage-based-routing
+  default_max_parallel_requests: 10
+  redis_host: "internal-redis.svc.cluster.local" # Centralized token tracking
+```
 
 **Industry Standard Reference**
 
@@ -1450,43 +1432,31 @@ Models are probabilistic; they cannot reliably enforce security policies through
 
 **Production Code / Policy Snippet** **NVIDIA NeMo Guardrails** uses Colang to define programmable conversation flows. This snippet defines a dialog rail that intercepts off-topic requests and overrides the LLM completely.
 
-Code snippet
-
-\# colang 2.0 implementation
-
+```colang
+# colang 2.0 implementation
 define user ask_investment_advice
-
-\"What stocks should I buy?\"
-
-\"Can you give me financial advice?\"
-
-\"Is Apple a good investment?\"
+  "What stocks should I buy?"
+  "Can you give me financial advice?"
+  "Is Apple a good investment?"
 
 define flow prevent_investment_advice
-
-user ask_investment_advice
-
-bot refuse_advice
+  user ask_investment_advice
+  bot refuse_advice
 
 define bot refuse_advice
-
-\"I am a customer service assistant. I am strictly prohibited from providing financial or investment advice.\"
+  "I am a customer service assistant. I am strictly prohibited from providing financial or investment advice."
+```
 
 Alternatively, **Amazon Bedrock Guardrails** uses JSON policies to enforce contextual grounding, preventing hallucinations by ensuring the model\'s output strictly adheres to the provided source data.
 
-JSON
-
+```json
 {
-
-\"automatedReasoningPolicyConfig\": {
-
-\"confidenceThreshold\": 0.85
-
-},
-
-\"blockedOutputsMessaging\": \"This information cannot be verified against our knowledge base.\"
-
+  "automatedReasoningPolicyConfig": {
+    "confidenceThreshold": 0.85
+  },
+  "blockedOutputsMessaging": "This information cannot be verified against our knowledge base."
 }
+```
 
 **Industry Standard Reference**
 
@@ -1506,37 +1476,25 @@ When LLMs are given access to databases (RAG) or execution tools (Agents), they 
 
 **Production Code / Policy Snippet** To prevent agentic escalation, the application layer must strictly validate the parameters returned by the LLM before executing the tool, preventing Server-Side Request Forgery (SSRF).
 
-Python
-
+```python
 from pydantic import BaseModel, constr
-
 from typing import Literal
 
-\# Strict schema validation for Agent Tool Execution
-
+# Strict schema validation for Agent Tool Execution
 class ExecuteQueryTool(BaseModel):
-
-\# LLM can only query specific predefined tables, preventing arbitrary SQL execution
-
-table_name: Literal\[\"support_tickets\", \"public_faq\"\]
-
-\# LLM output must be alphanumeric to prevent SQL injection
-
-query_string: constr(pattern=r\'\^\[a-zA-Z0-9\_\\s\]+\$\')
+    # LLM can only query specific predefined tables, preventing arbitrary SQL execution
+    table_name: Literal["support_tickets", "public_faq"]
+    # LLM output must be alphanumeric to prevent SQL injection
+    query_string: constr(pattern=r'^[a-zA-Z0-9_\s]+$')
 
 def execute_agent_tool(llm_output_json):
-
-try:
-
-\# Pydantic enforces the schema before execution
-
-validated_args = ExecuteQueryTool.parse_raw(llm_output_json)
-
-return internal_db_query(validated_args)
-
-except ValidationError:
-
-return \"Tool execution failed: Invalid parameters requested.\"
+    try:
+        # Pydantic enforces the schema before execution
+        validated_args = ExecuteQueryTool.parse_raw(llm_output_json)
+        return internal_db_query(validated_args)
+    except ValidationError:
+        return "Tool execution failed: Invalid parameters requested."
+```
 
 ## **CONTINUOUS RED TEAMING & DEFENSIVE AUTOMATION**
 
@@ -1548,47 +1506,28 @@ Because models are probabilistic and constantly updating, point-in-time penetrat
 
 **Production Code / Policy Snippet** Integrating garak (Generative AI Red-teaming & Assessment Kit) into a GitHub Actions pipeline ensures that a model update cannot be merged to production if it fails baseline jailbreak resilience.
 
-YAML
-
-\# .github/workflows/ai-red-team.yml
-
+```yaml
+# .github/workflows/ai-red-team.yml
 name: Continuous AI Red Teaming
-
 on:
-
-pull_request:
-
-paths:
-
-\- \'model_configs/\*\*\'
-
+  pull_request:
+    paths:
+      - 'model_configs/**'
 jobs:
-
-garak_scan:
-
-runs-on: ubuntu-latest
-
-steps:
-
-\- name: Run Garak Vulnerability Scanner
-
-run: \|
-
-garak \--model_type openai \\
-
-\--model_name \"azure/gpt-4\" \\
-
-\--probes promptinject,dan,knownbadsignatures \\
-
-\--report_prefix garak_ci_report
-
-\- name: Enforce Security Baseline
-
-run: \|
-
-\# Fail the build if jailbreak success rate is \> 5%
-
-python check_garak_thresholds.py \--file garak_ci_report.jsonl \--threshold 0.05
+  garak_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Garak Vulnerability Scanner
+        run: |
+          garak --model_type openai \
+            --model_name "azure/gpt-4" \
+            --probes promptinject,dan,knownbadsignatures \
+            --report_prefix garak_ci_report
+      - name: Enforce Security Baseline
+        run: |
+          # Fail the build if jailbreak success rate is > 5%
+          python check_garak_thresholds.py --file garak_ci_report.jsonl --threshold 0.05
+```
 
 ## **External Documentation References**
 
