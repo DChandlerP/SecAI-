@@ -2399,3 +2399,183 @@ Network observability for AI requires correlating standard Layer 7 network metri
 - network_namespace: ai-agent-sandbox-04
 
 By enforcing this telemetry, incident responders can instantly trace a suspicious network egress attempt backward through the proxy, directly into the specific LLM prompt that generated it.
+
+# Cryptographic Architecture and Privacy-Preserving Techniques for Enterprise AI Pipelines
+
+Welcome to the advanced module on cryptographic architecture for Artificial Intelligence. As enterprise AI scales, the traditional perimeter defense model fails under the weight of massive parameter counts, continuous fine-tuning pipelines, and high-dimensional vector representations.
+
+This module outlines the cryptographic primitives and architectural patterns required to build a zero-trust, privacy-preserving AI lifecycle.
+
+---
+
+## 1. Model Supply Chain & Artifact Integrity
+
+The foundation of AI security begins at the artifact level. Machine learning models are effectively compiled binaries; treating them as standard data files exposes the infrastructure to severe supply chain attacks.
+
+### The Pickle Vulnerability and Safetensors Migration
+
+Historically, PyTorch models were serialized using Python’s `pickle` module. This format is fundamentally flawed for untrusted models because the deserialization process allows arbitrary code execution via the `__reduce__` method.
+
+**Safetensors** resolves this by enforcing a strictly typed, zero-copy serialization format. It consists of a JSON header detailing the tensor metadata (shape, dtype, offsets) followed by a flat byte buffer. No executable code is parsed.
+
+### Envelope Encryption and Signing Protocols
+
+To protect model IP (weights) and ensure origin authenticity, enterprises must implement an envelope encryption pipeline backed by a Hardware Security Module (HSM) or cloud Key Management Service (KMS).
+
+1. **Generation:** A Data Encryption Key (DEK) is generated using AES-256-GCM.
+2. **Encryption:** The `.safetensors` file is encrypted using the DEK.
+3. **Wrapping:** The DEK is encrypted by a master Key Encryption Key (KEK) held in the KMS.
+4. **Signing:** A SHA-384 hash of the plaintext model is signed using an elliptic curve private key (e.g., ECDSA P-384).
+
+```python
+import hashlib
+import json
+import torch
+from safetensors.torch import save_file
+
+def secure_model_export(model: torch.nn.Module, export_path: str, private_key_pem: bytes):
+    """Exports to safetensors and generates a cryptographic signature."""
+    # 1. Convert to Safetensors
+    tensors = model.state_dict()
+    safetensor_path = f"{export_path}/model.safetensors"
+    save_file(tensors, safetensor_path)
+    
+    # 2. Hash the artifact
+    sha384 = hashlib.sha384()
+    with open(safetensor_path, "rb") as f:
+        while chunk := f.read(8192):
+            sha384.update(chunk)
+    artifact_hash = sha384.digest()
+    
+    # 3. Sign the hash (assuming a cryptographic library like cryptography.io is used)
+    # signature = sign_hash_with_hsm(artifact_hash, private_key_pem)
+    
+    # 4. Write manifest
+    manifest = {
+        "format": "safetensors",
+        "hash_sha384": sha384.hexdigest(),
+        # "signature_b64": b64encode(signature).decode('utf-8')
+    }
+    with open(f"{export_path}/manifest.json", "w") as f:
+        json.dump(manifest, f)
+
+```
+
+---
+
+## 2. Vector Database Cryptography & RAG Security
+
+Retrieval-Augmented Generation (RAG) introduces a unique cryptographic challenge: standard deterministic or authenticated encryption (AES-GCM, ChaCha20) destroys the geometric relationships required for vector similarity searches (cosine similarity, Euclidean distance, Inner Product).
+
+### The Encryption vs. Search Conflict
+
+If you encrypt a vector embedding $[0.24, -0.81, 0.11]$ with AES, the ciphertext is uniformly random. The distance between two ciphertexts provides zero information about the distance between their plaintexts. While Property-Preserving Encryption (PPE) exists, it is highly susceptible to inference attacks in high-dimensional spaces.
+
+### Architectural Solution: Split-State RAG
+
+To secure RAG pipelines, we decouple the index from the sensitive payloads and enforce pre-embedding tokenization.
+
+```mermaid
+graph TD
+    A[Enterprise Document] --> B[PII Redaction/Tokenization]
+    B --> C[Embedding Model]
+    B --> D[AES-256-GCM Encryption]
+    C --> E[Dense Vector]
+    D --> F[Encrypted Metadata/Payload]
+    E --> G[(Vector DB Index)]
+    F --> G
+    G --> H[Query Runtime]
+    H --> I[KMS Decryption of Payload]
+    I --> J[LLM Context Window]
+
+```
+
+**Implementation Directives:**
+
+* **Vectors (Plaintext):** Stored in memory-mapped files within a secure network boundary or TEE. They represent semantic meaning but cannot be easily reverse-engineered to exact text without the model weights and vocabulary.
+* **Metadata & Payloads (Ciphertext):** The actual text chunks retrieved for the LLM are encrypted at rest using AES-GCM. The Vector DB only stores the ciphertext.
+* **Decryption:** Occurs at the RAG orchestration layer (e.g., LangChain/LlamaIndex execution environment) immediately before prompting the LLM, never inside the Vector DB.
+
+---
+
+## 3. Confidential Computing & Hardware Isolation
+
+For workloads where the infrastructure provider (e.g., public cloud) is outside the trust boundary, we must secure data *in use*.
+
+### Trusted Execution Environments (TEEs)
+
+TEEs (like Intel TDX, AMD SEV-SNP, and NVIDIA H100 Confidential Computing) provide hardware-level memory encryption and isolation. The CPU/GPU decrypts memory pages only inside the silicon package. The hypervisor and host OS cannot read the enclave's memory.
+
+A critical component of TEEs is **Remote Attestation**—a cryptographic proof generated by the hardware that guarantees exactly which firmware and container image is running inside the enclave before any secrets (like the KMS KEK or model weights) are provisioned.
+
+### Privacy-Preserving Computation Trade-offs
+
+| Technology | Trust Boundary | Computational Overhead | Threat Model Defeated |
+| --- | --- | --- | --- |
+| **TEE (Enclaves)** | Hardware vendor (Intel/AMD/Nvidia) | Low (2-10%) | Malicious Cloud Admin, Host OS Compromise |
+| **FHE (Homomorphic)** | Math (Lattice-based cryptography) | Massive ($10^3\times$ to $10^6\times$) | Untrusted Hardware, Complete Infrastructure Compromise |
+| **SMPC (Multi-Party)** | Non-colluding nodes | High (Network latency bound) | Single-party data theft (requires $N/2$ collusion) |
+
+**Architectural Verdict:** For modern LLM inference (billions of parameters), FHE and SMPC are practically unviable due to latency. GPU-accelerated TEEs (e.g., NVIDIA Hopper architecture with Confidential Computing enabled) are the only production-ready solution for confidential inference.
+
+---
+
+## 4. Differential Privacy & Anonymization Pipelines
+
+When fine-tuning models on sensitive enterprise data, there is a risk that the model will memorize and regurgitate exact training sequences (e.g., API keys, SSNs, executive emails). Differential Privacy (DP) provides a mathematical guarantee against this memorization.
+
+### Differentially Private Stochastic Gradient Descent (DP-SGD)
+
+DP-SGD modifies the standard backpropagation algorithm by clipping gradients and injecting noise.
+
+1. **Per-Sample Gradient Clipping:** We compute the gradient for *each* example in the batch independently, and clip its $L_2$ norm to a maximum threshold $C$. This bounds the maximum influence any single training example can have.
+
+$$\bar{g}_i = \frac{g_i}{\max\left(1, \frac{\Vert{}g_i\Vert{}_2}{C}\right)}$$
+
+
+2. **Noise Injection:** We aggregate the clipped gradients and add Gaussian noise scaled by a noise multiplier $\sigma$ and the clipping threshold $C$.
+
+$$\tilde{g} = \frac{1}{B} \left( \sum_{i=1}^B \bar{g}_i + \mathcal{N}(0, \sigma^2 C^2 \mathbf{I}) \right)$$
+
+
+
+### Privacy Accounting ($\epsilon, \delta$)
+
+The privacy loss is quantified by two parameters:
+
+* $\epsilon$ (Epsilon): The strict privacy budget. Lower is better (typically $1 \le \epsilon \le 8$).
+* $\delta$ (Delta): The probability that the $\epsilon$ guarantee fails. Must be less than $1/N$, where $N$ is the dataset size.
+
+**PyTorch Opacus Implementation:**
+
+```python
+import torch
+from torchvision import models
+from opacus import PrivacyEngine
+
+model = models.resnet18(num_classes=10)
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+data_loader = ... # Your PyTorch DataLoader
+
+privacy_engine = PrivacyEngine()
+
+# Attach the privacy engine to the optimizer and dataloader
+model, optimizer, data_loader = privacy_engine.make_private_with_epsilon(
+    module=model,
+    optimizer=optimizer,
+    data_loader=data_loader,
+    target_epsilon=3.0,  # Strict enterprise privacy budget
+    target_delta=1e-5,   # Must be < 1/dataset_size
+    epochs=10,
+    max_grad_norm=1.0    # The clipping threshold (C)
+)
+
+# Training loop remains standard; gradients are automatically clipped and noised.
+
+```
+
+### Real-Time PII Tokenization
+
+To conserve the DP budget and prevent embedding contamination, data must undergo pre-processing via deterministic Vaultless Tokenization (e.g., Format-Preserving Encryption via NIST FF1).
+
+Instead of passing `"Contact Alice at 555-0199"` to the RAG embedding model, the text is processed by a named entity recognizer (like Microsoft Presidio). The PII is replaced with a reversible token: `"Contact Alice at {PHONE_TOK_8A9B}"`. The token mapping remains secured in a hardened Redis cache. When the LLM generates a response containing the token, the application layer detokenizes it before returning it to the authorized end-user, ensuring the LLM itself never processes or memorizes the raw sensitive data.
