@@ -3387,3 +3387,43 @@ Monitoring API traffic and agent activity allows SOC teams to detect subtle expl
 * **Anomalous Tool Chaining:** Tracking agent tool invocation sequences. If an agent executes an unprecedented tool chain (e.g., `read_file()` followed immediately by `send_external_http_request()`), the behavioral analytics engine flags a potential hijack event.
 
 ---
+
+System / Context: You are an AI security architect and courseware designer creating exam preparation materials for candidates preparing for the CompTIA SecAI+ certification.
+
+Task: Write a technical, exam-focused study module on Backdoor and Trojan Attacks in Machine Learning Systems.
+
+Content Requirements:
+
+Backdoor Attacks & Trigger Mechanics:
+
+Detail the mechanics of backdoor attacks via data poisoning, explaining how models remain functional on clean inputs while altering predictions when presented with specific triggers.
+
+Describe various trigger formats: visual artifacts (stickers, pixel patches), textual triggers (specific phrases/tokens), and audio patterns.
+
+Explain clean-label vs. dirty-label backdoor techniques.
+
+Trojan Attacks & Model Packaging Exploits:
+
+Differentiate Trojan attacks from backdoor attacks, focusing on malicious payload delivery inside model binaries and execution environments.
+
+Explain arbitrary code execution risks stemming from unsafe deserialization (e.g., Python pickle files) and contrast them with secure formats like safetensors.
+
+Detail exfiltration vectors where Trojaned models exfiltrate intermediate features, inputs, or system data to command-and-control (C2) servers.
+
+Supply Chain & Pipeline Compromise:
+
+Analyze supply chain threat vectors involving third-party pre-trained models (e.g., Hugging Face, ModelHub repos).
+
+Detail supply chain mitigations: Machine Learning Bill of Materials (MLBOM), cryptographic hashing (SHA-256), and digital signatures for model provenance.
+
+Detection, Forensics, & Mitigation:
+
+Detail backdoor detection methods: trigger inversion techniques (e.g., Neural Cleanse), activation clustering, and dataset sanitation via outlier removal.
+
+Outline runtime defenses: input transformation/perturbation (to strip triggers), output monitoring, and network egress control.
+
+Format & Style:
+
+Structure content using clear section headers, bolded technical terms, and concise bullet points for maximum readability.
+
+Include concrete real-world enterprise scenarios for complex concepts (e.g., a SOC detecting a Trojan exfiltrating data via RPC or catching an unpickling exploit during pipeline build).
