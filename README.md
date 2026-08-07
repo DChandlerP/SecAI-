@@ -2924,3 +2924,165 @@ Continuous monitoring ensures that operational performance, system availability,
 * **SIEM / SOAR Integration:** Ingestion of model telemetry, guardrail rejection events, token usage logs, and WORM-stored audit trails into enterprise SIEMs (e.g., Splunk, Microsoft Sentinel). Automated playbooks automatically revoke compromised API tokens and trigger incident response tickets.
 
 ---
+
+# CompTIA SecAI+: Data Ingest Security, Pipeline Resilience, and Lifecycle Threat Vectors
+
+## 1. Data Ingest Security & Provenance Controls
+
+Data ingest is the first critical boundary in the AI/ML pipeline. If unvetted, malicious, or non-compliant data enters the ingestion layer, downstream training sets, RAG vector indexes, and fine-tuned models become inherently compromised.
+
+```
+[ Raw Data Source ] ──> [ Allow-List / Signature Check ] ──> [ PII / PHI Sanitization Engine ]
+                                                                       │
+[ WORM Audit Storage ] <── [ Tamper-Evident Hash Manifest ] <──────────┘
+
+```
+
+### Ingestion Controls & Chain-of-Custody
+
+* **Chain-of-Custody Tracking:** Every incoming dataset must include a signed cryptographic manifest detailing its origin, transformation history, and timestamps. Chain-of-custody protocols track data movement across boundary transitions using digital signatures (e.g., PKI-based signing) to prevent unauthorized tampering during transit.
+* **Tamper-Evident Audit Logs:** All ingestion events, schema mutations, and data transformations are written directly to **WORM (Write Once, Read Many)** storage or append-only ledger databases. Cryptographic hashing (e.g., SHA-256 Merkle trees) ensures any retroactive modification to historical ingestion records is instantly detectable.
+* **Source Verification & Ingestion Policies:**
+* **Allow-Listing:** Ingestion pipelines must restrict data pulls strictly to pre-approved domain names, IP ranges, and bucket origins using network-level and identity-level policies.
+* **Vendor Contracts & SLA Verification:** Third-party data providers must adhere to contractual security baselines, including guarantees of data provenance, absence of copyrighted or illegally scraped content, and indemnification against poisoning.
+* **Automated PII/PHI Sanitization:** Pre-ingestion Data Loss Prevention (DLP) engines execute regular expression matching, named-entity recognition (NER), and format-preserving tokenization to redact or mask PII/PHI prior to landing in raw storage staging zones.
+
+
+
+### Data Labeling Security & Version Control
+
+Labeling introduces human-in-the-loop vulnerability. Compromised or low-quality labels directly degrade model classification boundaries.
+
+* **Crowdsourced vs. Internal Labeling Risks:** Crowdsourced labeling carries high risk for intentional label flipping, malicious data poisoning, and data leakage. Internal labeling provides higher trust and data isolation but incurs greater operational cost.
+* **Identity & Access Verification:** All human annotators must authenticate using strong multi-factor authentication (MFA) with Role-Based Access Control (RBAC) enforcing granular visibility (e.g., annotators see only anonymized chunks, never full documents).
+* **Version Rollback Strategies:** Datasets must be version-controlled using tools like **DVC (Data Version Control)** or Delta Lake. Every dataset commit is tied to an immutable git commit hash. If a labeling batch is found to be malicious or corrupted, pipeline orchestrators execute an automated **dataset rollback** to the last known secure commit.
+
+### Regulatory Compliance & Governance
+
+* **EU AI Act High-Risk Requirements:** Mandates that high-risk AI systems maintain detailed technical documentation covering data governance, design specifications, training methodologies, and provenance records. Datasets must be evaluated for relevance, representativeness, and freedom from errors prior to model training.
+* **Record-Keeping Mandates:** Organizations must retain complete lineage records—including raw input snapshots, cleaning scripts, labeling manifests, and evaluation results—for designated retention windows to satisfy regulatory audit requests.
+
+---
+
+## 2. Pipeline Availability & Anti-Poisoning Mechanisms
+
+Data pipelines feeding continuous training or real-time RAG applications are critical operational infrastructure subject to denial-of-service and data corruption attacks.
+
+```
+[ Edge Sensor / Data Source ] ──> [ Heartbeat + Sequence Check ] ──> [ Canary Input Filter ]
+                                                                             │
+[ Quarantine / Alert ] <── (Anomalous Baseline Deviation) <─────────────────┘
+
+```
+
+### Countering Pipeline Starvation & Sensor DoS
+
+Attackers can target ingestion endpoints to disrupt model availability or manipulate real-time predictions by starving pipelines of legitimate data or flooding them with garbage inputs.
+
+* **Pipeline Starvation:** Occurs when an attacker disables or blocks data sources, causing real-time models to infer on stale data or fail outright due to empty input queues.
+* **Sensor DoS Attacks:** Flooding real-time ingestion endpoints (e.g., IoT sensors, stream consumers) with high-volume garbage traffic to exhaust memory buffers and drop legitimate telemetry.
+
+#### Technical Countermeasures
+
+* **Cryptographically Signed Heartbeats:** Edge sensors and data collectors periodically transmit signed, time-stamped heartbeat packets. If a heartbeat is missed, the ingest controller flags a potential starvation attack and switches to redundant secondary feeds.
+* **Monotonic Sequence Numbers:** Ingestion streams embed strict sequence numbers in packet headers to detect dropped packets, out-of-order delivery, or replay attacks.
+* **Redundant Sensor Arrays & Cross-Validation:** Multi-homed sensor architectures where real-time values are cross-checked across adjacent sensors. Discrepancies exceeding defined tolerance bands trigger automatic isolation of the failing sensor.
+
+> **Enterprise Scenario:** An Industrial IoT facility relies on edge sensors streaming temperature data to a predictive maintenance model. An attacker launches a DoS flood against primary sensor gateways while spoofing low temperatures to hide an overheating turbine. The ingestion framework detects missing **cryptographic sequence numbers** and a failure in the **signed heartbeat**. The pipeline triggers an automated failover to a secondary, physically isolated sensor array and alerts the Security Operations Center (SOC).
+
+### Detecting Data Poisoning & Threshold Drift via Canary Inputs
+
+To catch subtle data poisoning attempts that pass standard schema validation, security teams inject **reference/canary inputs** into live data streams:
+
+1. **Canary Record Injection:** Known, synthetic data points with known ground-truth outputs are continuously mixed into the live ingestion stream at randomized intervals.
+2. **Validation Check:** As data passes through processing or real-time feature stores, the pipeline evaluates the canary records against expected baseline outputs.
+3. **Threshold Drift Detection:** If processing outputs for canary records deviate beyond statistical thresholds (e.g., a shift in feature distribution using **Kolmogorov-Smirnov tests** or **Population Stability Index**), the ingestion engine flags potential pipeline tampering or clean-label data poisoning.
+
+---
+
+## 3. AI Threat Taxonomy Across Lifecycle Phases
+
+AI systems face distinct threat vectors across the training, inference, and deployment phases. Compliance and security frameworks require specific controls mapped to each threat.
+
+```
+[ Training Phase ]       [ Inference Phase ]        [ Deployment Phase ]
+  • Data Poisoning         • Evasion Attacks          • Model Theft
+  • Bias Injection         • Prompt Injection         • API Abuse / DoW
+                           • Jailbreaks
+
+```
+
+### Training Phase Threats & Mitigations
+
+* **Data Poisoning:** An attacker injects malicious or mislabeled samples into the training set to manipulate the model's decision boundaries or insert backdoors.
+* *Mitigation:* Apply statistical outlier detection (e.g., Mahalanobis distance), use the **IBM Adversarial Robustness Toolbox (ART)** for activation clustering, and enforce strict hash-based provenance checks.
+
+
+* **Bias Injection:** Intentionally skewing training distributions to induce systematic bias or discriminatory outputs.
+* *Mitigation:* Run demographic parity and equalized odds evaluations against **Golden Datasets** prior to model approval.
+
+
+
+### Inference Phase Threats & Mitigations
+
+* **Evasion Attacks:** Subtly perturbing input data at inference time to cause the model to misclassify the sample (e.g., adversarial noise on images or evasion phrasing in text).
+* *Mitigation:* Implement adversarial training (including perturbed samples in training sets) and input smoothing/sanitization proxies.
+
+
+* **Prompt Injection (Direct/Indirect):** Crafting inputs that hijack the model's instruction context, causing it to ignore system instructions or execute untrusted instructions retrieved from external sources.
+* *Mitigation:* Enforce rigid delimiter separation between system prompts and user inputs, use specialized **Input Guardrails**, and isolate model capability tools via privilege boundaries.
+
+
+* **Jailbreaks:** Adversarial prompts designed to bypass safety filters and alignment constraints to generate harmful or unauthorized outputs.
+* *Mitigation:* Combine multi-layer output classifiers, real-time safety guardrails, and continuous automated red teaming.
+
+
+
+### Deployment Phase Threats & Mitigations
+
+* **Model Theft (Extraction):** Systematically querying a public inference endpoint with crafted inputs to reverse-engineer model weights, decision boundaries, or proprietary training data.
+* *Mitigation:* Restrict output logprob details, implement query rate limiting, introduce deliberate noise/rounding to confidence scores, and monitor for high-frequency systematic querying patterns.
+
+
+* **API Abuse & Denial of Wallet (DoW):** Flooding endpoints with complex, max-token queries to exhaust computational infrastructure or API budgets.
+* *Mitigation:* Apply strict Tokens Per Minute (TPM) limits, request validation gates, and dynamic hardware auto-scaling with hard budget enforcement limits.
+
+
+
+---
+
+## 4. Governance, Model Registries, & Change Management
+
+Establishing formal control over model artifacts and deployment pipelines prevents unauthorized, vulnerable, or drifted models from reaching production environments.
+
+### The Model Registry as a Single Source of Truth
+
+A **Model Registry** (e.g., MLflow, AWS SageMaker Model Registry) acts as a centralized, immutable repository governing the entire lifecycle of model artifacts.
+
+```
+[ Model Registry ]
+   ├── Immutable Weights (SafeTensors) + SHA-256 Hash
+   ├── Associated MLBOM & Dataset Git Commit
+   ├── Evaluation Metrics & Security Scan Results
+   └── Signed Approval Sign-Off (Cryptographic Signature)
+
+```
+
+* **Artifact Centralization:** Stores serialized model weights (in secure formats like **SafeTensors**), hyperparameters, training configurations, and associated software environments.
+* **Metadata Lineage:** Links every registered model directly to its corresponding dataset version (DVC hash), training code commit, and **Machine Learning Bill of Materials (MLBOM)**.
+* **Security Assessment Attestation:** Stores automated security scan results, including static analysis of model files, vulnerability assessments, guardrail compliance checks, and adversarial robustness scores. Unsigned or unvalidated models are strictly blocked from deployment.
+
+### Formal Change-Control Protocols
+
+High-impact AI security deployments require rigid change-control workflows to prevent supply chain compromise and operational downtime.
+
+* **Approval Workflows:** Production promotions require multi-party approval (e.g., explicit sign-offs from an AI Developer, Security Architect, and Compliance Officer) enforced via cryptographically signed approval tokens.
+* **Change Windows & Maintenance Windows:** Model promotions and re-indexing tasks must occur during designated low-risk change windows to minimize user impact during cutovers.
+* **Automated Rollback Plans:** If post-deployment telemetry flags anomalous performance drops, security breaches, or unexpected drift:
+1. The CI/CD deployment pipeline triggers an automated circuit breaker.
+2. Traffic routing is instantaneously reverted to the previous, known-good model version stored in the Model Registry.
+3. The degraded model container is isolated and suspended for offline forensic investigation.
+
+
+
+---
