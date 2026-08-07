@@ -2785,3 +2785,142 @@ Continuous automated and manual red teaming verifies that deployed security cont
 * **Continuous Feedback Loop:** Findings from red team exercises are converted directly into synthetic training data, updated guardrail rules, and new tests added to the organization's **Golden Dataset** pipeline.
 
 ---
+
+# CompTIA SecAI+: Securing the AI Lifecycle and Data Security Controls
+
+## 1. Lifecycle Stage Security & Threat Mapping
+
+Securing artificial intelligence systems requires embedding security controls across all six distinct phases of the AI lifecycle. A vulnerability in an early phase directly compromises downstream inference safety.
+
+```
+[ 1. Design ] ──> [ 2. Data Prep ] ──> [ 3. Development ]
+                                               │
+[ 6. Monitoring ] <── [ 5. Operation ] <── [ 4. Deployment ]
+
+```
+
+### 1. Design Phase
+
+* **Threat Vectors:** Flawed threat models, unvetted use cases, architecture design flaws, and unrealistic security boundaries.
+* **Security Controls:** Conduct AI-specific threat modeling using frameworks such as **STRIDE for AI** or **MITRE ATLAS**. Define security parameters, compliance requirements (e.g., EU AI Act, NIST AI RMF), and establish acceptable risk baselines.
+
+### 2. Data Collection & Preparation Phase
+
+* **Threat Vectors:** **Data Poisoning** (injecting malicious samples to alter decision boundaries), web scraping manipulation, unvalidated data sources, and PII/PHI leakage.
+* **Security Controls:** Enforce strict data provenance tracking, cryptographic hash-based integrity verification, input validation, outlier detection, and mandatory automated PII sanitization/tokenization pipelines.
+
+### 3. Model Development & Selection Phase
+
+* **Threat Vectors:** **Supply Chain Compromise** (malicious pre-trained weights), insecure training dependencies, backdoors (trigger payload insertion), and hyperparameter tampering.
+* **Security Controls:** Scan open-source model weights (e.g., Hugging Face models) for embedded code or backdoors, generate Machine Learning Bills of Materials (MLBOMs), and execute training within isolated, ephemeral build environments.
+
+### 4. Deployment & Integration Phase
+
+* **Threat Vectors:** Insecure API endpoints, insecure deserialization of model files (e.g., pickled Python objects), missing rate limits, and unauthorized access to vector databases.
+* **Security Controls:** Enforce strict API authentication (OAuth2/mTLS), run inference servers inside lightweight sandboxes, convert models to secure serialized formats (e.g., SafeTensors over PyTorch pickle), and implement network micro-segmentation.
+
+### 5. Operation & Inference Phase
+
+* **Threat Vectors:** **Evasion Attacks** (adversarial inputs designed to bypass classification), direct/indirect **Prompt Injections**, and **Model Inversion / Data Extraction** attacks.
+* **Security Controls:** Deploy real-time input/output guardrail proxies, enforce rate limiting and token quotas per client, and apply dynamic system prompt protection and context isolation.
+
+### 6. Monitoring & Maintenance Phase
+
+* **Threat Vectors:** **Concept Drift** (changing real-world data rendering models inaccurate), **Feature Drift**, feedback loop poisoning, and unmonitored financial exhaustion (**Denial of Wallet**).
+* **Security Controls:** Continuous monitoring of accuracy, P99 latency, and token consumption metrics. Automated security playbook triggers for out-of-bounds performance drops, along with continuous automated red teaming.
+
+---
+
+## 2. Data Governance & Privacy-Preserving Controls
+
+Data integrity and privacy controls ensure that training corpora and RAG context remain secure against tamper attempts and regulatory violations.
+
+### Cryptographic Integrity & Data Provenance
+
+* **Hash-Based Immutability Checks:** Every dataset, document chunk, and vector index must be hashed (using SHA-256 or BLAKE3) upon ingestion. Any deviation in cryptographic hashes flags potential unauthorized modifications or data corruption.
+* **Data Provenance & Lineage:** Tracking the origin, transformation history, and chain-of-custody for every training sample using signed metadata manifests.
+
+### Advanced Privacy-Preserving Techniques
+
+* **PII Tokenization & Anonymization:** Replaces sensitive attributes with non-sensitive surrogates (tokens) using Format-Preserving Encryption (FPE) prior to database insertion or LLM pre-fill processing.
+* **Differential Privacy (DP):** Adds controlled mathematical noise to dataset queries or model parameter updates during training (e.g., **DP-SGD**). DP guarantees that an auditor cannot determine whether a specific individual's data point was included in the training set, mitigating model inversion attacks.
+* **Federated Learning (FL):** Trains AI models across decentralized edge devices or isolated enterprise tenants without centralizing raw data. Local nodes train on their own data and transmit only encrypted gradient updates to a central aggregation server.
+
+```
+Central Server ──(Global Model Updates)──> Local Nodes (Devices)
+       ▲                                          │
+       └─────(Encrypted Gradients / DP Noise)─────┘
+
+```
+
+### Poisoning & Outlier Detection
+
+Security teams utilize specialized security frameworks to inspect training distributions for malicious anomalies:
+
+* **IBM Adversarial Robustness Toolbox (ART):** Provides automated defenses against data poisoning and evasion. ART includes detectors for **Clean-Label Attacks** and **Activation Clustering**—analyzing intermediate neural network activations to identify and segregate poisoned training clusters.
+* **Statistical Outlier Filters:** Uses Isolation Forests, Local Outlier Factors (LOF), and Mahalanobis distance metrics to flag anomalous data points that deviate significantly from standard feature distributions before training commences.
+
+> **Enterprise Scenario:** A retail bank ingests customer transaction data to train an automated fraud detection model. An attacker attempts a clean-label data poisoning attack by subtly altering transfer amounts to bypass detection rules. Prior to model re-training, the pipeline passes the dataset through the **IBM Adversarial Robustness Toolbox (ART)**, which analyzes activation patterns and identifies a $2\%$ anomaly cluster in the training data, stripping the poisoned records before training begins.
+
+---
+
+## 3. Model & Supply Chain Provenance
+
+Modern enterprise AI relies heavily on third-party libraries, base models, and external APIs. Securing the AI supply chain requires strict verification at every layer.
+
+### Verification & Bill of Materials
+
+```
+[ Pre-trained Model ] ──> [ Signature Verification ] ──> [ MLBOM Analysis ] ──> [ SafeTensors Conversion ]
+
+```
+
+* **Model Weight Integrity:** Pre-trained model artifacts must be cryptographically signed by their author (e.g., using Sigstore/Cosign). Downstream systems verify signatures before loading weights into GPU memory.
+* **Safe Serialization:** Traditional model formats like PyTorch `.pt` or `.pkl` use Python's `pickle` module, which allows arbitrary code execution during loading. Enterprise standards enforce zero-code-execution formats like **SafeTensors**.
+* **Dependency Scanning:** Continuous Software Composition Analysis (SCA) scanning of python packages (e.g., PyTorch, Transformers, LangChain) for known CVEs.
+* **SBOM and MLBOM:**
+* **Software Bill of Materials (SBOM):** Itemizes all software components, libraries, and sub-dependencies.
+* **Machine Learning Bill of Materials (MLBOM):** Documents model lineage, training dataset hashes, base architecture, hyperparameter configurations, evaluation scores, and licensing terms.
+
+
+
+### Safe Deployment & Runtime Isolation
+
+Deploying model updates to production requires strategies that minimize blast radius and isolate compute resources.
+
+* **Canary Deployments:** Routes a small percentage ($1\text{--}5\%$) of production traffic to a newly deployed model version while monitoring latency, guardrail triggers, and error rates. If telemetry remains nominal, traffic is incrementally shifted.
+* **Blue-Green Rollouts:** Maintains two identical production environments ("Blue" for current active, "Green" for new release). Traffic is instantly cut over via a load balancer once Green passes all health and guardrail checks, allowing instant rollback if issues arise.
+* **Runtime Isolation & Sandboxing:**
+* **gVisor:** An application-kernel sandbox that intercepts system calls made by inference containers, preventing malicious code or broken dependencies from compromising the underlying host OS kernel.
+* **WebAssembly (Wasm):** Executes agentic code tools and user-submitted plugins inside memory-safe, lightweight, isolated execution sandboxes.
+
+
+
+> **Enterprise Scenario:** An enterprise deploys an update to a customer-facing support bot. Using a **Canary Deployment**, $5\%$ of live prompts are routed to the new model container running inside a **gVisor** sandbox. Within 10 minutes, the monitoring pipeline flags an anomalous spike in execution timeouts (indicating a potential infinite loop exploit in a newly added agent tool). The automated routing controller immediately shifts all traffic back to the stable baseline model without affecting $95\%$ of active users.
+
+---
+
+## 4. Runtime Operations & Continuous Feedback Loops
+
+Continuous monitoring ensures that operational performance, system availability, and security postures do not degrade post-deployment.
+
+### Runtime Monitoring & Anomaly Detection
+
+* **Drift Monitoring:** Continuous tracking of **Concept Drift** and **Feature Drift** by comparing real-time inference inputs against training baselines using Population Stability Index (PSI) or Wasserstein Distance metrics.
+* **Latency & DoS Anomaly Detection:** Real-time analysis of Time to First Token (TTFT) and total processing time. Sudden spikes in processing duration across specific sessions can signal **Denial of Wallet** attacks, long-context exhaustion, or algorithmic complexity attacks.
+* **Automated Isolation Playbooks:** Pre-scripted SOAR workflows triggered when telemetry thresholds are breached. Actions include circuit-breaking API endpoints, forcing failovers to lightweight models, or isolating compromised tenant environments.
+
+### Continuous Security Maintenance
+
+```
+[ Production Inference ] ──> [ SIEM / SOAR Telemetry ] ──> [ Anomaly Alert ]
+         ▲                                                       │
+         └─────(Guardrail / Model Patching) <── [ Red Team ] <───┘
+
+```
+
+* **Secure Feedback Pipelines:** Human-In-The-Loop (HITL) feedback mechanisms (e.g., user thumbs down, reported incorrect answers) must be filtered and sanitized before being added to future fine-tuning datasets to prevent **Feedback Loop Poisoning**.
+* **Continuous Red Teaming:** Automated red-teaming bots continually execute synthetic prompt injections, data extraction attempts, and evasion vectors against active endpoints to test runtime guardrail effectiveness.
+* **SIEM / SOAR Integration:** Ingestion of model telemetry, guardrail rejection events, token usage logs, and WORM-stored audit trails into enterprise SIEMs (e.g., Splunk, Microsoft Sentinel). Automated playbooks automatically revoke compromised API tokens and trigger incident response tickets.
+
+---
